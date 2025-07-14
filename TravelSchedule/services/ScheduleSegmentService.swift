@@ -46,10 +46,10 @@ func testFetchScheduleSegment() {
                 apiKey: ApiHelper.apiKey
             )
             
-            print("Fetching schedule...")
-            let copyright = try await service.getScheduleSegment(from: "s9602494", to: "s9602655")
+            print("Fetching schedule segment...")
+            let schedule = try await service.getScheduleSegment(from: "s9602494", to: "s9602655")
 
-            print("Successfully fetched schedule: \(copyright)")
+            print("Successfully fetched schedule segment: \(schedule)")
         } catch {
             print("Error fetching schedule: \(error)")
         }

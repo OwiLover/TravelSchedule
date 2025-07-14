@@ -50,9 +50,9 @@ func testFetchThreadStations() {
             )
             
             print("Fetching Thread Stations...")
-            let ThreadStations = try await service.getThreadStations(uid: "6709x6710_1_9602494_g25_4")
+            let threadStations = try await service.getThreadStations(uid: "6709x6710_1_9602494_g25_4")
 
-            print("Successfully fetched Thread Stations: \(ThreadStations)")
+            print("Successfully fetched Thread Stations: \(threadStations)")
         } catch {
             print("Error fetching Thread Stations: \(error)")
         }

@@ -37,7 +37,6 @@ func testFetchSchedule() {
         do {
             let client = Client(
                 serverURL: try Servers.Server1.url(),
-//                configuration: Configuration(dateTranscoder: CustomDateTranscoder()),
                 transport: URLSessionTransport(),
             )
             let service = ScheduleService(
@@ -46,9 +45,9 @@ func testFetchSchedule() {
             )
             
             print("Fetching schedule...")
-            let copyright = try await service.getSchedule(stationCode: "s9602494")
+            let schedule = try await service.getSchedule(stationCode: "s9602494")
 
-            print("Successfully fetched schedule: \(copyright)")
+            print("Successfully fetched schedule: \(schedule)")
         } catch {
             print("Error fetching schedule: \(error)")
         }

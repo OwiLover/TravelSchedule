@@ -27,12 +27,6 @@ final class StationsListService: StationsListServiceProtocol {
     func getAllStations(format: String = "json") async throws -> StationsList {
         let response = try await client.getAllStations(query: .init(apikey: apiKey, format: format))
         
-//        var rawData = Data()
-//        
-//        for try await chunk in try response.ok.body.text_html_charset_utf_hyphen_8 {
-//  rawData.append(contentsOf:chunk)
-//        }
-        
         let htmlResponse = try response.ok.body.html
 
         let rawData = try await Data(collecting: htmlResponse, upTo: .max)

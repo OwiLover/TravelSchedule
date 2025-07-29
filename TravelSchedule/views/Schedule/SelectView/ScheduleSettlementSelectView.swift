@@ -33,6 +33,14 @@ struct ScheduleSettlementSelectView: View {
     var body: some View {
         Group {
             CustomSearchBar(searchText: $text, isFocused: $isSearchBarFocused)
+                .navigationDestination(isPresented: $isScheduleStationSelectViewPresented) {
+                    if let pickedCity {
+                        ScheduleStationSelectView(model: model, pickedCity: pickedCity, isReturningToRoot: $isReturningToRoot)
+                    }
+                }
+                .navigationTitle("Выбор города")
+                .navigationBarBackButtonHidden(true)
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         CustomBackButton(action: {
@@ -60,15 +68,6 @@ struct ScheduleSettlementSelectView: View {
             print(text)
             filteredElements = text.isEmpty ? elements : elements.filter { $0.lowercased().contains(text.lowercased()) }
         }
-        .navigationDestination(isPresented: $isScheduleStationSelectViewPresented) {
-            if let pickedCity {
-                ScheduleStationSelectView(model: model, pickedCity: pickedCity, isReturningToRoot: $isReturningToRoot)
-            }
-        }
-        .navigationTitle("Выбор города")
-        .navigationBarBackButtonHidden(true)
-        .navigationBarTitleDisplayMode(.inline)
-//        .searchable(text: $text, placement: .navigationBarDrawer(displayMode: .always))
     }
     
     func scheduleSelectListButtonPressed(pickedElement: String) {

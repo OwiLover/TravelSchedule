@@ -30,39 +30,40 @@ struct ScheduleStationSelectView: View {
     }
     
     var body: some View {
+        Group {
+            CustomSearchBar(searchText: $text, isFocused: $isSearchBarFocused)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        CustomBackButton(action: {
+                            dismiss()
+                        })
+                    }
+                }
             Group {
-                CustomSearchBar(searchText: $text, isFocused: $isSearchBarFocused)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            CustomBackButton(action: {
-                                dismiss()
-                            })
+                if filteredElements.isEmpty {
+                    ZStack {
+                        Color(.ypWhite).ignoresSafeArea(edges: .all)
+                        Text("Станция не найдена")
+                            .font(FontStyleHelper.bold.getStyledFont(size: 24))
                     }
-                Group {
-                    if filteredElements.isEmpty {
-                        ZStack {
-                            Color(.ypWhite).ignoresSafeArea(edges: .all)
-                            Text("Станция не найдена")
-                                .font(FontStyleHelper.bold.getStyledFont(size: 24))
-                        }
-                    } else {
-                        ScheduleSelectList(elements: filteredElements, actionOnSelected: scheduleSelectListButtonPressed)
-                    }
-                }
-                .onTapGesture {
-                    isSearchBarFocused = false
+                } else {
+                    ScheduleSelectList(elements: filteredElements, actionOnSelected: scheduleSelectListButtonPressed)
                 }
             }
-            .background(Color.ypWhite)
-            .onChange(of: text) {
-                filteredElements = text.isEmpty ? elements : elements.filter { $0.lowercased().contains(text.lowercased()) }
+            .onTapGesture {
+                isSearchBarFocused = false
             }
-            .onAppear {
-                filteredElements = elements
-            }
-            .navigationTitle("Выбор станции")
-            .navigationBarBackButtonHidden(true)
         }
+        .background(Color.ypWhite)
+        .onChange(of: text) {
+            filteredElements = text.isEmpty ? elements : elements.filter { $0.lowercased().contains(text.lowercased()) }
+        }
+        .onAppear {
+            filteredElements = elements
+        }
+        .navigationTitle("Выбор станции")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
     }
     
     func scheduleSelectListButtonPressed(pickedElement: String) {

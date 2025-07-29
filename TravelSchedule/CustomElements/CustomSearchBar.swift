@@ -10,8 +10,7 @@ import SwiftUI
 struct CustomSearchBar: View {
     
     @Binding var searchText: String
-    
-    @State var isSearching: Bool = false
+
     @State private var magnifyingGlassColor: Color = .ypGrayConstant
     @FocusState private var focusState: Bool
     @Binding var isFocused: Bool
@@ -32,18 +31,12 @@ struct CustomSearchBar: View {
                 .padding()
                 .cornerRadius(16)
                 .padding(.horizontal)
-                .onTapGesture(perform: {
-                    withAnimation {
-                        isSearching = true
-                    }
-                })
                 .overlay {
                     HStack {
                         Image(systemName: "magnifyingglass")
                             .resizable()
                             .frame(width: 17, height: 17)
                             .foregroundColor(magnifyingGlassColor)
-                        
                         
                         Spacer()
 
@@ -55,8 +48,8 @@ struct CustomSearchBar: View {
                                 .foregroundColor(.ypGrayConstant)
                                 .padding(.vertical)
                         }
-                        .opacity(isSearching && searchText.count > 0 ? 1 : 0)
-                        .disabled(!isSearching && searchText.count == 0)
+                        .opacity(focusState && !searchText.isEmpty ? 1 : 0)
+                        .disabled(!focusState && searchText.isEmpty)
                     }
                     .padding(.horizontal, 10)
                 }

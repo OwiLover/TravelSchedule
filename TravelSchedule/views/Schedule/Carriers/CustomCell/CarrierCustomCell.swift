@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-struct CustomCarrierCell: View {
+struct CustomCarrierCell: View, Identifiable {
+    let id: UUID = UUID()
     
     init(name: String, image: String, date: String, timeStart: String, timeEnd: String, timeTotal: String, importantInfo: String = "") {
         self.name = name
@@ -51,7 +52,7 @@ struct CustomCarrierCell: View {
             Text(date).font(fontDetails)
                 .foregroundStyle(.ypBlackConstant)
         }
-//        .frame(height: 38)
+        .frame(height: 38)
     }
     
     private var bottomInfo: some View {

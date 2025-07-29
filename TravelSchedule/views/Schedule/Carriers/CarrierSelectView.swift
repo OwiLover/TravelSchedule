@@ -13,9 +13,11 @@ struct CarrierSelectView: View {
     @Bindable var fromModel: ScheduleSettlementPickerModel
     @Bindable var toModel: ScheduleSettlementPickerModel
     
-    var elements: [String] = ["z", "x", "c"]
+    @State var isFiltered: Bool = false
     
-    @State var isFiltered: Bool = true
+    var elements: [String] = ["z", "x", "c", "q", "w", "d", "h", "a"]
+    
+    private let filterButtonHeight: CGFloat = 60
     
     var body: some View {
         VStack(spacing: 16) {
@@ -26,7 +28,10 @@ struct CarrierSelectView: View {
             }
             ZStack(alignment: .bottom) {
                 CarrierList
-                Button(action: { dismiss() }) {
+                Button(action: { withAnimation{
+                    isFiltered.toggle()
+                    }
+                }) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.ypBlueConstant)
@@ -38,16 +43,14 @@ struct CarrierSelectView: View {
                                     .foregroundStyle(.ypRedConstant)
                                     .frame(width: 8, height: 8)
                                     .clipShape(RoundedRectangle(cornerRadius: 4))
-                                    
-                                    
-                                    
                             }
                         }
                     }
                 }
-                .frame(height: 60)
+                .frame(height: filterButtonHeight)
                 .padding(.bottom, 24)
             }
+            Spacer()
         }
         .padding(EdgeInsets(top: 16, leading: 16, bottom: 0, trailing: 16))
         .navigationBarBackButtonHidden(true)
@@ -57,7 +60,6 @@ struct CarrierSelectView: View {
             }
         }
         .background(.ypWhite)
-//            .navigationTitle("\(fromModel.selectionText) → \(toModel.selectionText)").navigationBarTitleDisplayMode(.large)
     }
     
     private var CarrierList: some View {
@@ -65,7 +67,7 @@ struct CarrierSelectView: View {
             LazyVStack(spacing: 8) {
                 ForEach(elements, id: \.self) {
                     element in
-                    if element != "x" {
+                    if ["x", "a", "h"].firstIndex(of: element) == nil {
                         CustomCarrierCell(name: "РЖД", image: "RZDIcon", date: "11 января", timeStart: "19:00", timeEnd: "21:00", timeTotal: "2 часа")
                     }
                     else {
@@ -73,7 +75,9 @@ struct CarrierSelectView: View {
                     }
                 }
             }
+            Spacer(minLength: filterButtonHeight + 32)
         }
+        .scrollIndicators(.hidden)
     }
 }
 

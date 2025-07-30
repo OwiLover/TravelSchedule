@@ -22,6 +22,8 @@ struct ScheduleRootView: View {
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
     }
+//    @State private var errorHandler: ErrorHandlerModel = ErrorHandlerModel(error: .Server)
+    @State private var errorHandler: ErrorHandlerModel = ErrorHandlerModel()
     
     @State private var selectedTab: SelectedTab = .Schedule
     
@@ -37,7 +39,7 @@ struct ScheduleRootView: View {
                     }
                     .tag(SelectedTab.Schedule)
                 
-                Text("настройки)))")
+                ScheduleSettingsView()
                     .tabItem {
                         Image(selectedTab == .Settings ? "SettingsTabBarIcon" : "SettingsUnselectedTabBarIcon")
                     }
@@ -45,5 +47,6 @@ struct ScheduleRootView: View {
             }
             .environment(pathHelper)
         }
+        .environment(errorHandler)
     }
 }

@@ -19,7 +19,7 @@ struct City {
     
 //    MARK: временное решение, пока нет необходимости связывать View с API
     
-    private var settlements: [Settlement] = [Settlement(title: "Москва", stations: [.init(title: "Белорусский вокзал"), .init(title: "Казанский вокзал"), .init(title: "Киевский вокзал")]), Settlement(title: "Санкт-Петербург", stations: [.init(title: "Финляндский вокзал"), .init(title: "Московский вокзал")])]
+    private var settlements: [Settlement] = [Settlement(title: "Москва", stations: [.init(title: "Белорусский вокзал"), .init(title: "Казанский вокзал"), .init(title: "Киевский вокзал")]), Settlement(title: "Санкт-Петербург", stations: [.init(title: "Финляндский вокзал"), .init(title: "Московский вокзал")]), Settlement(title: "Прага")]
     
     private var selectedSettlement: Settlement?
     private var selectedStation: Station?

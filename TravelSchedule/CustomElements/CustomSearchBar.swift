@@ -55,7 +55,7 @@ struct CustomSearchBar: View {
                 }
             }
             .frame(height: 37)
-            .background(.ypLightGrayConstant)
+            .background(.ypSearchBar)
             .cornerRadius(10)
             .onChange(of: searchText) { oldText, newText in
                 withAnimation {

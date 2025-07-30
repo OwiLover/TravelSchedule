@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ScheduleMainView: View {
+    @Environment(ErrorHandlerModel.self) var errorHandlerModel: ErrorHandlerModel?
     
     @State var fromModel = ScheduleSettlementPickerModel()
     @State var toModel = ScheduleSettlementPickerModel()
@@ -17,44 +18,53 @@ struct ScheduleMainView: View {
     @State var isPresentedCarrierView: Bool = false
     
     var body: some View {
-        NavigationStack {
-            Group {
-                VStack(spacing: 0) {
-                    Spacer()
-                        .frame(height: 188)
-                    ScheduleMainPicker(modelFrom: fromModel, modelTo: toModel, actionFrom: actionFrom, actionTo: actionTo)
-                        .padding(.top, 20)
-                    Button {
-                        isPresentedCarrierView = true
-                    }
-                    label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(.ypBlueConstant)
-                            Text("Найти")
-                                .foregroundStyle(.ypWhiteConstant)
-                                .font(FontStyleHelper.bold.getStyledFont(size: 17))
+        if let error = errorHandlerModel?.error {
+            switch error {
+            case .Internet:
+                InternetErrorView()
+            case .Server:
+                ServerErrorView()
+            }
+        } else {
+            NavigationStack {
+                Group {
+                    VStack(spacing: 0) {
+                        Spacer()
+                            .frame(height: 188)
+                        ScheduleMainPicker(modelFrom: fromModel, modelTo: toModel, actionFrom: actionFrom, actionTo: actionTo)
+                            .padding(.top, 20)
+                        Button {
+                            isPresentedCarrierView = true
                         }
-                        .frame(width: 150, height: 60)
+                        label: {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(.ypBlueConstant)
+                                Text("Найти")
+                                    .foregroundStyle(.ypWhiteConstant)
+                                    .font(FontStyleHelper.bold.getStyledFont(size: 17))
+                            }
+                            .frame(width: 150, height: 60)
+                        }
+                        .opacity(checkModelsSelection() ? 1 : 0)
+                        .disabled(checkModelsSelection() ? false : true)
+                        .padding(.top, 16)
+                        Spacer()
                     }
-                    .opacity(checkModelsSelection() ? 1 : 0)
-                    .disabled(checkModelsSelection() ? false : true)
-                    .padding(.top, 16)
-                    Spacer()
                 }
-            }
-            .navigationDestination(isPresented: $isPresentedFromView) {
-                ScheduleSettlementSelectView(model: fromModel, isSelfPresented: $isPresentedFromView)
-            }
-            
-            .navigationDestination(isPresented: $isPresentedToView) {
-                ScheduleSettlementSelectView(model: toModel, isSelfPresented: $isPresentedToView)
-            }
-            .navigationDestination(isPresented: $isPresentedCarrierView) {
-                CarrierSelectView(fromModel: fromModel, toModel: toModel)
+                .navigationDestination(isPresented: $isPresentedFromView) {
+                    ScheduleSettlementSelectView(model: fromModel, isSelfPresented: $isPresentedFromView)
+                }
+                
+                .navigationDestination(isPresented: $isPresentedToView) {
+                    ScheduleSettlementSelectView(model: toModel, isSelfPresented: $isPresentedToView)
+                }
+                .navigationDestination(isPresented: $isPresentedCarrierView) {
+                    CarrierSelectView(fromModel: fromModel, toModel: toModel)
+                }
+                .background(Color.ypWhite)
             }
         }
-        .background(Color.ypWhite)
     }
     
     func actionFrom() {

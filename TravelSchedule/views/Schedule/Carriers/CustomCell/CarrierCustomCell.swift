@@ -10,7 +10,7 @@ import SwiftUI
 struct CustomCarrierCell: View, Identifiable {
     let id: UUID = UUID()
     
-    init(name: String, image: String, date: String, timeStart: String, timeEnd: String, timeTotal: String, importantInfo: String = "") {
+    init(name: String, image: String, date: String, timeStart: String, timeEnd: String, timeTotal: String, importantInfo: String = "", action: (() -> Void)? = nil) {
         self.name = name
         self.image = image
         self.date = date
@@ -18,6 +18,7 @@ struct CustomCarrierCell: View, Identifiable {
         self.timeEnd = timeEnd
         self.timeTotal = timeTotal
         self.importantInfo = importantInfo
+        self.action = action
     }
     
     var name: String
@@ -29,6 +30,8 @@ struct CustomCarrierCell: View, Identifiable {
     var timeEnd: String
     
     var timeTotal: String
+    
+    var action: (() -> Void)?
     
     private var fontName: Font = FontStyleHelper.regular.getStyledFont(size: 17)
     private var fontDetails: Font = FontStyleHelper.regular.getStyledFont(size: 12)
@@ -73,11 +76,15 @@ struct CustomCarrierCell: View, Identifiable {
     }
     
     var body: some View {
-        VStack(spacing: 4) {
-            topInfo
-                .padding(EdgeInsets(top: 14, leading: 14, bottom: 0, trailing: 7))
-            bottomInfo
-                .padding(.all, 14)
+        Button {
+            action?()
+        } label: {
+            VStack(spacing: 4) {
+                topInfo
+                    .padding(EdgeInsets(top: 14, leading: 14, bottom: 0, trailing: 7))
+                bottomInfo
+                    .padding(.all, 14)
+            }
         }
         .background(.ypLightGrayConstant)
         .clipShape(RoundedRectangle(cornerRadius: 24))

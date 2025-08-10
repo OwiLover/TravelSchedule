@@ -13,7 +13,7 @@ struct City {
 }
 
 
-@Observable class ScheduleSettlementPickerModel {
+@Observable final class ScheduleSettlementPickerModel {
     typealias Settlement = Components.Schemas.Settlement
     typealias Station = Components.Schemas.Station
     

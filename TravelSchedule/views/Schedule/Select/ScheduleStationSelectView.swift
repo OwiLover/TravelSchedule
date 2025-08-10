@@ -31,70 +31,47 @@ struct ScheduleStationSelectView: View {
     }
     
     var body: some View {
-        if let error = errorHandler?.error {
-            switch error {
-            case .Internet:
-                InternetErrorView()
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationBarBackButtonHidden(true)
-                    .navigationTitle("Выбор станции")
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            CustomBackButton(action: {
-                                dismiss()
-                            })
-                        }
-                    }
-            case .Server:
-                ServerErrorView()
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationBarBackButtonHidden(true)
-                    .navigationTitle("Выбор станции")
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            CustomBackButton(action: {
-                                dismiss()
-                            })
-                        }
-                    }
-            }
-        } else {
-            VStack(spacing: 0) {
-                CustomSearchBar(searchText: $text, isFocused: $isSearchBarFocused)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationBarBackButtonHidden(true)
-                    .navigationTitle("Выбор станции")
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            CustomBackButton(action: {
-                                dismiss()
-                            })
-                        }
-                    }
-                    .onAppear {
-                        filteredElements = elements
-                    }
-                Spacer(minLength: 0)
-                Group {
-                    if filteredElements.isEmpty {
-                        ZStack {
-                            Text("Станция не найдена")
-                                .font(FontStyleHelper.bold.getStyledFont(size: 24))
-                        }
-                    } else {
-                        ScheduleSelectList(elements: filteredElements, actionOnSelected: scheduleSelectListButtonPressed)
-                    }
-                }
-                .onTapGesture {
-                    isSearchBarFocused = false
-                }
-                .onChange(of: text) {
-                    filteredElements = text.isEmpty ? elements : elements.filter { $0.lowercased().contains(text.lowercased()) }
-                }
-                Spacer(minLength: 0)
-            }
-            .background(Color.ypWhite)
+        ErrorsHandlerView {
+            mainView
         }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .navigationTitle("Выбор станции")
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                CustomBackButton(action: {
+                    dismiss()
+                })
+            }
+        }
+        .onAppear {
+            filteredElements = elements
+        }
+    }
+    
+    var mainView: some View {
+        VStack(spacing: 0) {
+            CustomSearchBar(searchText: $text, isFocused: $isSearchBarFocused)
+            Spacer(minLength: 0)
+            Group {
+                if filteredElements.isEmpty {
+                    ZStack {
+                        Text("Станция не найдена")
+                            .font(FontStyleHelper.bold.getStyledFont(size: 24))
+                    }
+                } else {
+                    ScheduleSelectList(elements: filteredElements, actionOnSelected: scheduleSelectListButtonPressed)
+                }
+            }
+            .onTapGesture {
+                isSearchBarFocused = false
+            }
+            .onChange(of: text) {
+                filteredElements = text.isEmpty ? elements : elements.filter { $0.lowercased().contains(text.lowercased()) }
+            }
+            Spacer(minLength: 0)
+        }
+        .background(Color.ypWhite)
     }
     
     func scheduleSelectListButtonPressed(pickedElement: String) {

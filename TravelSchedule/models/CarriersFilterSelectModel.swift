@@ -30,7 +30,7 @@ enum TransitionFilterOption: String, CaseIterable {
     case no = "Нет"
 }
 
-@Observable class CarriersFilterSelectModel {
+@Observable final class CarriersFilterSelectModel {
 
     var selectedTimeFilters: Set<FilterOption> = []
     var allowTransitionFilter: Bool = true

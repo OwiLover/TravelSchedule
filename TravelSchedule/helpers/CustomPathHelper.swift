@@ -8,7 +8,7 @@ import SwiftUI
 
 // MARK: Попытка использовать NavigationPath, однако из-за нехватки времени остались только наработки
 
-@Observable class CustomPathHelper: Identifiable {
+@Observable final class CustomPathHelper: Identifiable {
     var path: [String]
     
     init(path: [String] = []) {

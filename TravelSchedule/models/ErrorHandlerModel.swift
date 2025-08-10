@@ -12,7 +12,7 @@ enum Errors: String {
     case Server
 }
 
-@Observable class ErrorHandlerModel {
+@Observable final class ErrorHandlerModel {
     var error: Errors?
     
     init(error: Errors? = nil) {

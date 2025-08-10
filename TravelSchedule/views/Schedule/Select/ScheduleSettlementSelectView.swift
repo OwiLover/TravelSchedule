@@ -32,74 +32,50 @@ struct ScheduleSettlementSelectView: View {
     }
     
     var body: some View {
-        if let error = errorHandler?.error {
-            switch error {
-            case .Internet:
-                InternetErrorView()
-                    .navigationTitle("Выбор города")
-                    .navigationBarBackButtonHidden(true)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            CustomBackButton(action: {
-                                dismiss()
-                            })
-                        }
-                    }
-            case .Server:
-                ServerErrorView()
-                    .navigationTitle("Выбор города")
-                    .navigationBarBackButtonHidden(true)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            CustomBackButton(action: {
-                                dismiss()
-                            })
-                        }
-                    }
-            }
-        } else {
-            VStack(spacing: 0) {
-                CustomSearchBar(searchText: $text, isFocused: $isSearchBarFocused)
-                    .navigationDestination(isPresented: $isScheduleStationSelectViewPresented) {
-                        if let pickedCity {
-                            ScheduleStationSelectView(model: model, pickedCity: pickedCity, isReturningToRoot: $isReturningToRoot)
-                        }
-                    }
-                    .navigationTitle("Выбор города")
-                    .navigationBarBackButtonHidden(true)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            CustomBackButton(action: {
-                                dismiss()
-                            })
-                        }
-                    }
-                    .onChange(of: text) {
-                        print(text)
-                        filteredElements = text.isEmpty ? elements : elements.filter { $0.lowercased().contains(text.lowercased()) }
-                    }
-                Spacer(minLength: 0)
-                Group {
-                    if filteredElements.isEmpty {
-                        ZStack {
-                            Color(.ypWhite).ignoresSafeArea(edges: .all)
-                            Text("Город не найден")
-                                .font(FontStyleHelper.bold.getStyledFont(size: 24))
-                        }
-                    } else {
-                        ScheduleSelectList(elements: filteredElements, actionOnSelected: scheduleSelectListButtonPressed)
-                    }
-                }
-                .onTapGesture {
-                    isSearchBarFocused = false
-                }
-                Spacer(minLength: 0)
-            }
-            .background(.ypWhite)
+        ErrorsHandlerView {
+            mainView
         }
+        .navigationDestination(isPresented: $isScheduleStationSelectViewPresented) {
+            if let pickedCity {
+                ScheduleStationSelectView(model: model, pickedCity: pickedCity, isReturningToRoot: $isReturningToRoot)
+            }
+        }
+        .navigationTitle("Выбор города")
+        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                CustomBackButton(action: {
+                    dismiss()
+                })
+            }
+        }
+        .onChange(of: text) {
+            filteredElements = text.isEmpty ? elements : elements.filter { $0.lowercased().contains(text.lowercased()) }
+        }
+    }
+    
+    private var mainView: some View {
+        VStack(spacing: 0) {
+            CustomSearchBar(searchText: $text, isFocused: $isSearchBarFocused)
+            Spacer(minLength: 0)
+            Group {
+                if filteredElements.isEmpty {
+                    ZStack {
+                        Color(.ypWhite).ignoresSafeArea(edges: .all)
+                        Text("Город не найден")
+                            .font(FontStyleHelper.bold.getStyledFont(size: 24))
+                    }
+                } else {
+                    ScheduleSelectList(elements: filteredElements, actionOnSelected: scheduleSelectListButtonPressed)
+                }
+            }
+            .onTapGesture {
+                isSearchBarFocused = false
+            }
+            Spacer(minLength: 0)
+        }
+        .background(.ypWhite)
     }
     
     func scheduleSelectListButtonPressed(pickedElement: String) {
@@ -140,7 +116,6 @@ struct ScheduleSelectViewCell: View {
                 .tint(.ypBlack)
                 .padding(.leading, 16)
             Spacer()
-//            MARK: Мне интересно, в реальной разработке используются системные изображения или они заменяются копиями в ассетах (например из фигмы)?
             Image("ChevronForwardIcon")
                 .renderingMode(.template)
                 .resizable()

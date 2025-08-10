@@ -22,15 +22,16 @@ struct ScheduleRootView: View {
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
     }
-//    @State private var errorHandler: ErrorHandlerModel = ErrorHandlerModel(error: .Server)
+//    @State private var errorHandler: ErrorHandlerModel = ErrorHandlerModel(error: .Internet)
     @State private var errorHandler: ErrorHandlerModel = ErrorHandlerModel()
     
     @State private var selectedTab: SelectedTab = .Schedule
     
     @State private var pathHelper = CustomPathHelper()
     
+    @State private var isDarkTheme: Bool = false
+    
     var body: some View {
-//        MARK: Если не обернуть TabView в NavigationStack, то таббар появляется с задержкой при возврате после экрана выбора городов
         NavigationStack {
             TabView(selection: $selectedTab) {
                 ScheduleMainView()
@@ -39,7 +40,7 @@ struct ScheduleRootView: View {
                     }
                     .tag(SelectedTab.Schedule)
                 
-                ScheduleSettingsView()
+                ScheduleSettingsView(isDarkTheme: $isDarkTheme)
                     .tabItem {
                         Image(selectedTab == .Settings ? "SettingsTabBarIcon" : "SettingsUnselectedTabBarIcon")
                     }
@@ -48,5 +49,6 @@ struct ScheduleRootView: View {
             .environment(pathHelper)
         }
         .environment(errorHandler)
+        .preferredColorScheme(isDarkTheme ? .dark : .light)
     }
 }

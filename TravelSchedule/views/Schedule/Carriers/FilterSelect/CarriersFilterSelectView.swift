@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-// MARK: Несмотря на то, что фильтр пересадок в макете изначально не имеет никакого значения, посчитал это нелогичным, поскольку фильтр не может быть не иметь одно из значений и выставил базовое значение на "Да"
-
 struct CarriersFilterSelectView: View {
     
     @Environment(ErrorHandlerModel.self) var errorHandler: ErrorHandlerModel?
@@ -22,49 +20,44 @@ struct CarriersFilterSelectView: View {
     private let optionsFont = FontStyleHelper.regular.getStyledFont(size: 17)
     
     var body: some View {
-        if let error = errorHandler?.error {
-            switch error {
-            case .Internet:
-                InternetErrorView()
-            case .Server:
-                ServerErrorView()
+        ErrorsHandlerView {
+            mainView
+        }
+    }
+    private var mainView: some View {
+        ZStack(alignment: .bottom) {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 16) {
+                    makeSectionList(info: model.getTimeFiltersInfo())
+                    makeSectionList(info: model.getTransitionFilterInfo())
+                }
             }
-        } else {
-            ZStack(alignment: .bottom) {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 16) {
-                        makeSectionList(info: model.getTimeFiltersInfo())
-                        makeSectionList(info: model.getTransitionFilterInfo())
+            Button {
+                dismiss()
+            } label: {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.ypBlueConstant)
+                    HStack(spacing: 4) {
+                        Text("Применить").font(FontStyleHelper.bold.getStyledFont(size: 17))
+                            .foregroundStyle(.ypWhiteConstant)
                     }
                 }
-                Button {
+            }
+            .frame(height: 60)
+            .padding(.bottom, 24)
+        }
+        .padding(EdgeInsets(top: 16, leading: 16, bottom: 0, trailing: 16))
+        .background(.ypWhite)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                CustomBackButton(action: {
                     dismiss()
-                } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.ypBlueConstant)
-                        HStack(spacing: 4) {
-                            Text("Применить").font(FontStyleHelper.bold.getStyledFont(size: 17))
-                                .foregroundStyle(.ypWhiteConstant)
-                        }
-                    }
-                }
-                .frame(height: 60)
-                .padding(.bottom, 24)
-            }
-            .padding(EdgeInsets(top: 16, leading: 16, bottom: 0, trailing: 16))
-            .background(.ypWhite)
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    CustomBackButton(action: {
-                        dismiss()
-                    })
-                }
+                })
             }
         }
     }
-    
     func makeSectionList(info: FilterInfo) -> some View {
         Section(info.sectionName) {
             VStack(alignment: .leading, spacing: 0) {

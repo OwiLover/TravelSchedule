@@ -39,7 +39,10 @@ struct CarriersCardView: View {
     private var mainView: some View {
         VStack(spacing: 16) {
             Image(cardInfo.image)
-            
+                .resizable()
+                .scaledToFill()
+                .frame(height: 104)
+                .clipShape(RoundedRectangle(cornerRadius: 24))
             makeCarriersNameElement(name: cardInfo.name)
             
             makeInfoElement(header: "E-mail", details: cardInfo.email)

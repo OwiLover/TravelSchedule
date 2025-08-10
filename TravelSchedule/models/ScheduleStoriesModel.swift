@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-@Observable class ScheduleStoriesModel {
+@Observable final class ScheduleStoriesModel {
     init() {
         
     }
@@ -27,7 +27,7 @@ import SwiftUI
     }
 }
 
-@Observable class Story: Identifiable {
+@Observable final class Story: Identifiable {
     init(previewImage: Image, storyImages: [Image], isWatched: Bool = false) {
         self.id = UUID()
         self.previewImage = previewImage

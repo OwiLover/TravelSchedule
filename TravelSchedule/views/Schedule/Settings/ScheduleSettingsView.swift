@@ -69,12 +69,13 @@ struct ScheduleSettingsView: View {
                 .foregroundStyle(.ypBlack)
             Spacer()
             Image(.chevronForwardIcon)
+                .renderingMode(.template)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .padding(.top, 3)
                 .padding(.bottom, 2.18)
                 .frame(width: 24, height: 24)
-                .foregroundColor(.ypBlack)
+                .foregroundStyle(.ypBlack)
         }
     }
     

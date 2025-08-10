@@ -63,7 +63,7 @@ struct CarriersCardView: View {
         HStack {
             Text(name)
                 .font(nameFont)
-                .foregroundStyle(.black)
+                .foregroundStyle(.ypBlack)
             Spacer()
         }
     }

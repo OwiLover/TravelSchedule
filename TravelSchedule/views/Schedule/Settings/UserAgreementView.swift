@@ -46,6 +46,7 @@ struct UserAgreementView: View {
                 })
             }
         }
+        .background(.ypWhite)
     }
     
     func createTextBlock(header: String, text: String) -> some View {

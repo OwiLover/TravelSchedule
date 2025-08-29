@@ -7,52 +7,41 @@
 
 import SwiftUI
 
+
+
 struct CustomCarrierCell: View, Identifiable {
     let id: UUID = UUID()
     
-    init(name: String, image: String, date: String, timeStart: String, timeEnd: String, timeTotal: String, importantInfo: String = "", action: (() -> Void)? = nil) {
-        self.name = name
-        self.image = image
-        self.date = date
-        self.timeStart = timeStart
-        self.timeEnd = timeEnd
-        self.timeTotal = timeTotal
-        self.importantInfo = importantInfo
+    init(carrierInfo: CarrierInfo, action: ((_: CarriersCard) -> Void)? = nil) {
+        self.carrierInfo = carrierInfo
         self.action = action
     }
     
-    var name: String
-    var image: String
-    var date: String
-    var importantInfo: String
+    var carrierInfo: CarrierInfo
     
-    var timeStart: String
-    var timeEnd: String
-    
-    var timeTotal: String
-    
-    var action: (() -> Void)?
+    var action: ((_: CarriersCard) -> Void)?
     
     private var fontName: Font = FontStyleHelper.regular.getStyledFont(size: 17)
     private var fontDetails: Font = FontStyleHelper.regular.getStyledFont(size: 12)
     
     private var topInfo: some View {
         HStack(alignment: .top) {
-            Image(image)
+            Image(data: carrierInfo.imageData)
                 .resizable()
-                .aspectRatio(contentMode: .fill)
+                .aspectRatio(4/4, contentMode: .fill)
                 .frame(width: 38, height: 38)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             VStack(alignment: .leading, spacing: 0) {
                 Spacer(minLength: 0)
-                Text(name).font(fontName)
+                Text(carrierInfo.name).font(fontName)
                     .foregroundStyle(.ypBlackConstant)
-                if !importantInfo.isEmpty {
-                    Text(importantInfo).font(fontDetails).foregroundStyle(.ypRedConstant)
+                if !carrierInfo.importantInfo.isEmpty {
+                    Text(carrierInfo.importantInfo).font(fontDetails).foregroundStyle(.ypRedConstant)
                 }
                 Spacer(minLength: 0)
             }
             Spacer()
-            Text(date).font(fontDetails)
+            Text(carrierInfo.date).font(fontDetails)
                 .foregroundStyle(.ypBlackConstant)
         }
         .frame(height: 38)
@@ -60,24 +49,24 @@ struct CustomCarrierCell: View, Identifiable {
     
     private var bottomInfo: some View {
         HStack(alignment: .center, spacing: 5) {
-            Text(timeStart)
+            Text(carrierInfo.timeStart)
                 .foregroundStyle(.ypBlackConstant)
             Rectangle()
                 .frame(height: 1)
                 .foregroundStyle(.ypGrayConstant)
-            Text(timeTotal)
+            Text("\(carrierInfo.hoursTotal) часов")
                 .foregroundStyle(.ypBlackConstant)
             Rectangle()
                 .frame(height: 1)
                 .foregroundStyle(.ypGrayConstant)
-            Text(timeEnd)
+            Text(carrierInfo.timeEnd)
                 .foregroundStyle(.ypBlackConstant)
         }
     }
     
     var body: some View {
         Button {
-            action?()
+            action?(carrierInfo.carrierCard)
         } label: {
             VStack(spacing: 4) {
                 topInfo
@@ -93,6 +82,6 @@ struct CustomCarrierCell: View, Identifiable {
 
 #Preview {
     Spacer()
-    CustomCarrierCell(name: "ФПК", image: "FGKIcon", date: "21 Августа", timeStart: "1:00", timeEnd: "13:00", timeTotal: "12 часов", importantInfo: "Пересадка в Костроме")
+//    CustomCarrierCell(name: "ФПК", image: "FGKIcon", date: "21 Августа", timeStart: "1:00", timeEnd: "13:00", timeTotal: "12 часов", importantInfo: "Пересадка в Костроме")
     Spacer()
 }

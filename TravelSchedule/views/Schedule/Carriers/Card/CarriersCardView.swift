@@ -4,14 +4,8 @@
 //
 //  Created by Owi Lover on 7/30/25.
 //
-import SwiftUI
 
-struct CarriersCard {
-    var image: String
-    var name: String
-    var email: String
-    var phone: String
-}
+import SwiftUI
 
 struct CarriersCardView: View {
     
@@ -19,7 +13,12 @@ struct CarriersCardView: View {
     
     @Environment(ErrorHandlerModel.self) var errorHandler: ErrorHandlerModel?
     
-    let cardInfo: CarriersCard
+    @State var viewModel: CarrierCardViewModelProtocol
+    
+    init(cardInfo: CarriersCard?) {
+        let card = cardInfo ?? CarriersCard(image: nil, name: "", email: "", phone: "")
+        self.viewModel = CarrierCardViewModel(cardInfo: card)
+    }
     
     private let nameFont: Font = FontStyleHelper.bold.getStyledFont(size: 24)
     private let infoHeaderFont: Font = FontStyleHelper.regular.getStyledFont(size: 17)
@@ -31,22 +30,19 @@ struct CarriersCardView: View {
         }
         .background(Color.ypWhite)
     }
-    
-    init(cardInfo: CarriersCard?) {
-        self.cardInfo = cardInfo ?? CarriersCard(image: "", name: "", email: "", phone: "")
-    }
+
     
     private var mainView: some View {
         VStack(spacing: 16) {
-            Image(cardInfo.image)
+            Image(data: viewModel.getCarrierImage())
                 .resizable()
-                .scaledToFill()
+                .scaledToFit()
                 .frame(height: 104)
                 .clipShape(RoundedRectangle(cornerRadius: 24))
-            makeCarriersNameElement(name: cardInfo.name)
+            makeCarriersNameElement(name: viewModel.getCarrierName())
             
-            makeInfoElement(header: "E-mail", details: cardInfo.email)
-            makeInfoElement(header: "Телефон", details: cardInfo.phone)
+            makeInfoElement(header: "E-mail", details: viewModel.getCarrierEmail())
+            makeInfoElement(header: "Телефон", details: viewModel.getCarrierPhone())
             Spacer()
         }
         .padding(.all, 16)
@@ -88,6 +84,6 @@ struct CarriersCardView: View {
 }
 
 #Preview {
-    let cardInfo = CarriersCard(image: "RZDBigIcon", name: "RZD", email: "someemail@mail.com", phone: "+7123456789")
-    CarriersCardView(cardInfo: cardInfo)
+//    let cardInfo = CarriersCard(image: "RZDBigIcon", name: "RZD", email: "someemail@mail.com", phone: "+7123456789")
+//    CarriersCardView(cardInfo: cardInfo)
 }

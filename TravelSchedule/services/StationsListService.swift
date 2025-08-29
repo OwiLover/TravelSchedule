@@ -51,12 +51,30 @@ func testFetchStationsList() {
             print("Fetching stations list...")
             let stationsList = try await service.getAllStations()
             
-            let stationsListCount = stationsList.countries?.count ?? 0
-//          MARK: Лимит поставлен, поскольку в противном случае консоль вывода зависает
-            let limit = stationsListCount > 10 ? 10 : stationsListCount
-            let stationsListCut = stationsList.countries?[0...limit]
+            var russia: Components.Schemas.Country?
+            
+            let _ = stationsList.countries?.first { country in
+                if country.title == "Россия" {
+                    russia = country
+                    return true
+                }
+                return false
+            }
+            var settlementsArray: [Components.Schemas.Settlement] = []
+            
+            russia?.regions?.forEach { region in
+                for settlement in region.settlements ?? [] {
+                    let stationsFiltered = settlement.stations?.filter { station in
+                        station.station_type == "train_station"
+                    }
+                    guard let stationsFiltered, !stationsFiltered.isEmpty else { continue }
+                    var settlementFiltered = settlement
+                    settlementFiltered.stations = stationsFiltered
+                    settlementsArray.append(settlementFiltered)
+                }
+            }
 
-            print("Successfully fetched Stations list: \(stationsListCut ?? [])")
+            print("Successfully fetched Stations list: \(settlementsArray.count)")
         } catch {
             print("Error fetching Stations list: \(error)")
         }

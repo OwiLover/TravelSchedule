@@ -528,6 +528,20 @@ components:
         duration:
           type: integer
           description: Длительность рейса в секундах
+        has_transfers:
+          type: boolean
+          description: Признак наличия пересадок по маршруту.
+        transfers:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Transfer'
+        details:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Segment'
+        
     Pagination:
       type: object
       properties:
@@ -951,4 +965,16 @@ components:
         text:
           type: string
         logo_hm:
+          type: string
+          
+    Transfer:
+      type: object
+      properties:
+        title:
+          type: string
+        short_title:
+          type: string
+        popular_title:
+          type: string
+        code:
           type: string

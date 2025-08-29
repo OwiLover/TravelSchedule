@@ -5,8 +5,6 @@
 //  Created by Owi Lover on 7/26/25.
 //
 
-// MARK: bpyfxfkmyj
-
 import SwiftUI
 
 protocol ScheduleSettlementSelectViewProtocol: AnyObject, Observable{

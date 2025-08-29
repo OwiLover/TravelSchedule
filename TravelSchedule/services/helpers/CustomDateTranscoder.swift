@@ -8,7 +8,7 @@
 import OpenAPIRuntime
 import Foundation
 
-struct CustomDateTranscoder: DateTranscoder {
+struct CustomDateTranscoder: DateTranscoder, Sendable {
     public func encode(_ date: Date) throws -> String { ISO8601DateFormatter().string(from: date) }
 
     public func decode(_ dateString: String) throws -> Date {

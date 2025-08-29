@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2A6FB0272E5F4E4D00159BCA /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 2A6FB0262E5F4E4D00159BCA /* Localizable.xcstrings */; };
 		2AC757752E14887400BFA554 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 2AC757742E14887400BFA554 /* OpenAPIURLSession */; };
 		2AC757782E14887C00BFA554 /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 2AC757772E14887C00BFA554 /* OpenAPIRuntime */; };
 /* End PBXBuildFile section */
@@ -14,6 +15,7 @@
 /* Begin PBXFileReference section */
 		2A0C16402E145B1E00671643 /* openapi.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = openapi.yaml; sourceTree = "<group>"; };
 		2A0C16422E145B6300671643 /* openapi-generator-config.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "openapi-generator-config.yaml"; sourceTree = "<group>"; };
+		2A6FB0262E5F4E4D00159BCA /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		2AB471182E0EFA8A004CFFCC /* TravelSchedule.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TravelSchedule.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -54,6 +56,7 @@
 		2AB4710F2E0EFA8A004CFFCC = {
 			isa = PBXGroup;
 			children = (
+				2A6FB0262E5F4E4D00159BCA /* Localizable.xcstrings */,
 				2AB4711A2E0EFA8A004CFFCC /* TravelSchedule */,
 				2AB471192E0EFA8A004CFFCC /* yaml */,
 			);
@@ -113,11 +116,12 @@
 				};
 			};
 			buildConfigurationList = 2AB471132E0EFA8A004CFFCC /* Build configuration list for PBXProject "TravelSchedule" */;
-			developmentRegion = en;
+			developmentRegion = ru;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = 2AB4710F2E0EFA8A004CFFCC;
 			minimizedProjectReferenceProxies = 1;
@@ -141,6 +145,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A6FB0272E5F4E4D00159BCA /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,7 +228,9 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
 			};
 			name = Debug;
 		};
@@ -279,6 +286,8 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

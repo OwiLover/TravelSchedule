@@ -12,22 +12,10 @@ struct ScheduleStationSelectView: View {
     @Environment(ErrorHandlerModel.self) var errorHandler: ErrorHandlerModel?
     @Environment(\.dismiss) private var dismiss
     
-    @Bindable var model: ScheduleSettlementPickerModel
-    @Binding var isReturningToRoot: Bool
-    
-    @State private var filteredElements: [String] = []
-    @State private var text: String = ""
-    @State private var isSearchBarFocused: Bool = false
-    
-    private let pickedCity: String
-    
-    private var elements: [String]
-    
-    init(model: ScheduleSettlementPickerModel, pickedCity: String, isReturningToRoot: Binding<Bool>) {
-        self.model = model
-        self.pickedCity = pickedCity
-        self.elements = model.getStationsString(for: pickedCity)
-        _isReturningToRoot = isReturningToRoot
+    @State private var viewModel: ScheduleStationSelectViewModelProtocol
+
+    init(pickedCity: String, isViewStackPresented: Binding<Bool>, settlementAndStation: Binding<SettlementAndStation>?, viewModel: ScheduleStationSelectViewModelProtocol? = nil) {
+        self.viewModel = viewModel ?? ScheduleStationSelectViewModel(isViewStackPresented: isViewStackPresented, pickedSettlement: pickedCity, settlementAndStation: settlementAndStation)
     }
     
     var body: some View {
@@ -44,30 +32,30 @@ struct ScheduleStationSelectView: View {
                 })
             }
         }
-        .onAppear {
-            filteredElements = elements
+        .task {
+            await viewModel.loadElements()
         }
     }
     
     var mainView: some View {
         VStack(spacing: 0) {
-            CustomSearchBar(searchText: $text, isFocused: $isSearchBarFocused)
+            CustomSearchBar(searchText: $viewModel.text, isFocused: $viewModel.isSearchBarFocused)
             Spacer(minLength: 0)
             Group {
-                if filteredElements.isEmpty {
+                if viewModel.filteredElements.isEmpty {
                     ZStack {
                         Text("Станция не найдена")
                             .font(FontStyleHelper.bold.getStyledFont(size: 24))
                     }
                 } else {
-                    ScheduleSelectList(elements: filteredElements, actionOnSelected: scheduleSelectListButtonPressed)
+                    ScheduleSelectList(elements: viewModel.filteredElements, actionOnSelected: scheduleSelectListButtonPressed)
                 }
             }
             .onTapGesture {
-                isSearchBarFocused = false
+                viewModel.isSearchBarFocused = false
             }
-            .onChange(of: text) {
-                filteredElements = text.isEmpty ? elements : elements.filter { $0.lowercased().contains(text.lowercased()) }
+            .onChange(of: viewModel.text) {
+                viewModel.updateFilteredElements()
             }
             Spacer(minLength: 0)
         }
@@ -75,7 +63,8 @@ struct ScheduleStationSelectView: View {
     }
     
     func scheduleSelectListButtonPressed(pickedElement: String) {
-        model.makeSelection(settlement: pickedCity, station: pickedElement)
-        isReturningToRoot = false
+        Task {
+            await viewModel.makeSelectionAndReturnToRootView(pickedStation: pickedElement)
+        }
     }
 }

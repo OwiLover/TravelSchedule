@@ -7,18 +7,7 @@
 
 import SwiftUI
 
-struct CarrierInfo: Identifiable, Sendable {
-    let id: UUID = UUID()
-    let name: String
-    let imageData: Data?
-    let date: String
-    let timeStart: String
-    let timeEnd: String
-    let hoursTotal: Int
-    let importantInfo: String
-    
-    let carrierCard: CarriersCard
-}
+
 
 struct CustomCarrierCell: View, Identifiable {
     let id: UUID = UUID()

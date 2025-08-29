@@ -8,12 +8,13 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-actor SettlementsModel {
+actor SettlementsModel: SettlementsModelProtocol {
+    
     typealias Country = Components.Schemas.Country
     typealias Settlement = Components.Schemas.Settlement
     typealias Station = Components.Schemas.Station
     
-    static let shared = SettlementsModel()
+    static let shared: SettlementsModelProtocol = SettlementsModel()
     
     private init() {}
     
@@ -114,4 +115,16 @@ actor SettlementsModel {
         
         return (settlement: settlement, station: station)
     }
+}
+
+protocol SettlementsModelProtocol: Actor {
+    typealias Country = Components.Schemas.Country
+    typealias Settlement = Components.Schemas.Settlement
+    typealias Station = Components.Schemas.Station
+    
+    static var shared: SettlementsModelProtocol { get }
+    func getSettlements() async -> [Settlement]
+    func getSettlementsString() async -> [String]
+    func getSettlementStations(settlementName name: String) async -> [Station]
+    func getSettlementAndStation(settlementName: String, stationName: String) async -> (settlement: Settlement, station: Station)?
 }

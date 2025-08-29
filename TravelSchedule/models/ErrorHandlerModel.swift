@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum Errors: String {
+enum Errors: String, Sendable {
     case Internet
     case Server
 }

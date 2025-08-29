@@ -24,11 +24,12 @@ import SwiftUI
     private var settlementFrom: SettlementAndStation
     private var settlementTo: SettlementAndStation
     private var selectedCarrier: CarriersCard?
-    private var model: CarriersScheduleModel = CarriersScheduleModel()
+    private var model: CarriersScheduleModelProtocol
     
     private(set) var isLoading: Bool = false
     
-    init(settlementFrom: SettlementAndStation, settlementTo: SettlementAndStation) {
+    init(settlementFrom: SettlementAndStation, settlementTo: SettlementAndStation, model: CarriersScheduleModelProtocol = CarriersScheduleModel()) {
+        self.model = model
         self.settlementFrom = settlementFrom
         self.settlementTo = settlementTo
         

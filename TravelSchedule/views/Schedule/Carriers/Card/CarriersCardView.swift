@@ -7,13 +7,6 @@
 
 import SwiftUI
 
-struct CarriersCard: Sendable {
-    var image: Data?
-    var name: String
-    var email: String
-    var phone: String
-}
-
 struct CarriersCardView: View {
     
     @Environment(\.dismiss) private var dismiss

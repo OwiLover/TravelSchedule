@@ -11,7 +11,7 @@ struct ScheduleSettlementSelectView: View {
     @Environment(ErrorHandlerModel.self) var errorHandler: ErrorHandlerModel?
     @Environment(\.dismiss) private var dismiss
 
-    @State private var viewModel: ScheduleSettlementSelectViewModel
+    @State private var viewModel: ScheduleSettlementSelectViewModelProtocol
     
     private let fontForLoading: Font = FontStyleHelper.regular.getStyledFont(size: 17)
     
@@ -37,7 +37,7 @@ struct ScheduleSettlementSelectView: View {
         .background(.ypWhite)
         .navigationDestination(isPresented: $viewModel.isScheduleStationSelectViewPresented) {
             if let pickedCity = viewModel.pickedCity {
-                ScheduleStationSelectView(pickedCity: pickedCity, isViewStackPresented: viewModel.isViewPresented, type: viewModel.type, settlementAndStation: viewModel.settlementAndStation)
+                ScheduleStationSelectView(pickedCity: pickedCity, isViewStackPresented: viewModel.isViewPresented, settlementAndStation: viewModel.settlementAndStation)
             }
         }
         .navigationTitle("Выбор города")

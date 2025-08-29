@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum SelectedTab: String {
+enum SelectedTab: String, Sendable {
     case Schedule
     case Settings
 }

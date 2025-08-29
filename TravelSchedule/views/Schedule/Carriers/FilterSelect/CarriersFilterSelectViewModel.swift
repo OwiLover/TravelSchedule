@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-enum FilterType: Int {
+enum FilterType: Int, Sendable {
     case all = 0
     case one
 }
 
-enum FilterOption: String, CaseIterable {
+enum FilterOption: String, CaseIterable, Sendable {
     case morning = "Утро 06:00 - 12:00"
     case day = "День 12:00 - 18:00"
     case evening = "Вечер 18:00 - 00:00"
@@ -46,7 +46,7 @@ struct FilterInfo: Sendable {
     var isOnlyOneAllowed: Bool
 }
 
-enum TransitionFilterOption: String, CaseIterable {
+enum TransitionFilterOption: String, CaseIterable, Sendable {
     case yes = "Да"
     case no = "Нет"
 }

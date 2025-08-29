@@ -16,7 +16,7 @@ struct Station: CellItemProtocol {
 @MainActor
 @Observable final class ScheduleStationSelectViewModel: ScheduleStationSelectViewModelProtocol {
     
-    private var model: SettlementsModel
+    private var model: SettlementsModelProtocol
     
     private var settlementAndStation: Binding<SettlementAndStation>?
     
@@ -31,11 +31,8 @@ struct Station: CellItemProtocol {
     
     private(set) var filteredElements: [Station] = []
     
-    let type: SelectionType
-    
-    init(isViewStackPresented: Binding<Bool>, pickedSettlement: String, type: SelectionType, settlementAndStation: Binding<SettlementAndStation>?, model: SettlementsModel = SettlementsModel.shared) {
+    init(isViewStackPresented: Binding<Bool>, pickedSettlement: String, settlementAndStation: Binding<SettlementAndStation>?, model: SettlementsModelProtocol = SettlementsModel.shared) {
         self.model = model
-        self.type = type
         self.isViewStackPresented = isViewStackPresented
         self.pickedSettlement = pickedSettlement
         self.elements = []

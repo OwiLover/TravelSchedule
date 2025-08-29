@@ -14,8 +14,8 @@ struct ScheduleStationSelectView: View {
     
     @State private var viewModel: ScheduleStationSelectViewModelProtocol
 
-    init(pickedCity: String, isViewStackPresented: Binding<Bool>, type: SelectionType, settlementAndStation: Binding<SettlementAndStation>?, viewModel: ScheduleStationSelectViewModelProtocol? = nil) {
-        self.viewModel = viewModel ?? ScheduleStationSelectViewModel(isViewStackPresented: isViewStackPresented, pickedSettlement: pickedCity, type: type, settlementAndStation: settlementAndStation)
+    init(pickedCity: String, isViewStackPresented: Binding<Bool>, settlementAndStation: Binding<SettlementAndStation>?, viewModel: ScheduleStationSelectViewModelProtocol? = nil) {
+        self.viewModel = viewModel ?? ScheduleStationSelectViewModel(isViewStackPresented: isViewStackPresented, pickedSettlement: pickedCity, settlementAndStation: settlementAndStation)
     }
     
     var body: some View {

@@ -23,7 +23,7 @@ protocol CellItemProtocol: Identifiable, Sendable {
 @Observable final class ScheduleSettlementSelectViewModel: ScheduleSettlementSelectViewModelProtocol {
     typealias SettlementSchema = Components.Schemas.Settlement
     
-    private var model: SettlementsModel
+    private var model: SettlementsModelProtocol
     
     private var elements: [Settlement]
     
@@ -42,7 +42,7 @@ protocol CellItemProtocol: Identifiable, Sendable {
     
     let type: SelectionType
     
-    init(isViewPresented: Binding<Bool>, type: SelectionType, settlementAndStation: Binding<SettlementAndStation>?, model: SettlementsModel = SettlementsModel.shared) {
+    init(isViewPresented: Binding<Bool>, type: SelectionType, settlementAndStation: Binding<SettlementAndStation>?, model: SettlementsModelProtocol = SettlementsModel.shared) {
         self.type = type
         self.isViewPresented = isViewPresented
         self.model = model
@@ -105,6 +105,8 @@ protocol ScheduleSettlementSelectViewModelProtocol {
     
     var settlementAndStation: Binding<SettlementAndStation>? { get }
     
+    var filteredElements: [Settlement] { get }
+    
     var isScheduleStationSelectViewPresented: Bool { get set }
     
     var isSearchBarFocused: Bool { get set }
@@ -118,4 +120,6 @@ protocol ScheduleSettlementSelectViewModelProtocol {
     func isEmpty() -> Bool
     
     func updateFilteredElements()
+    
+    func presentScheduleStationSelectView(withPickedCity city: String?)
 }

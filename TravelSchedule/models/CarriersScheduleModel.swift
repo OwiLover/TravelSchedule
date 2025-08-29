@@ -8,7 +8,27 @@
 import OpenAPIURLSession
 import Foundation
 
-actor CarriersScheduleModel {
+struct CarrierInfo: Identifiable, Sendable {
+    let id: UUID = UUID()
+    let name: String
+    let imageData: Data?
+    let date: String
+    let timeStart: String
+    let timeEnd: String
+    let hoursTotal: Int
+    let importantInfo: String
+    
+    let carrierCard: CarriersCard
+}
+
+struct CarriersCard: Sendable {
+    var image: Data?
+    var name: String
+    var email: String
+    var phone: String
+}
+
+actor CarriersScheduleModel: CarriersScheduleModelProtocol {
     typealias Carrier = Components.Schemas.Carrier
     typealias CarrierResponse = Components.Schemas.CarrierResponse
     
@@ -73,6 +93,53 @@ actor CarriersScheduleModel {
         return response
     }
     
+    func getCarrierInfos(stationFrom: Station, stationTo: Station) async -> [CarrierInfo] {
+        let response = await fetchThread(stationFrom: stationFrom, stationTo: stationTo)
+
+        var carrierInfos: [CarrierInfo] = []
+
+        for segment in response?.segments ?? [] {
+            
+            guard let departure = segment.departure, let arrival = segment.arrival else { continue }
+            
+            if let hasTransfers = segment.has_transfers, hasTransfers {
+                guard let transfers = segment.transfers, let segmentExtra = segment.details?.first else { continue }
+                
+                var transitionsString: String = ""
+                        
+                transfers.enumerated().forEach { (index, transition) in
+                    if let title = transition.title {
+                        let titlePrep = CityPrepositionalHelper.toPrepositional(title)
+                        if index == 0 {
+                            transitionsString += "\(titlePrep)"
+                        } else if index == transfers.count - 1 {
+                            transitionsString += " и \(titlePrep)"
+                        } else {
+                            transitionsString += ", \(titlePrep)"
+                        }
+                    }
+                }
+                let firstTwo = transitionsString.lowercased().prefix(2)
+                
+                let voSet: Set<String> = ["вл", "вк", "вс", "вт", "вф", "вр"]
+                
+                let prefix = voSet.contains(String(firstTwo)) ? "во" : "в"
+
+                let additionalInfo: String? = transitionsString.isEmpty ? nil : "С пересадкой \(prefix) \(transitionsString)"
+                
+                guard let card = await createCarrierInfo(departure: departure, arrival: arrival, segment: segmentExtra, additionalInfo: additionalInfo, hasTransfers: hasTransfers) else { continue }
+                carrierInfos.append(card)
+                
+                continue
+            }
+            
+            guard let card = await createCarrierInfo(departure: departure, arrival: arrival, segment: segment) else { continue }
+            carrierInfos.append(card)
+        }
+        print(carrierInfos)
+        return carrierInfos
+    }
+    
     private func fetchCarrier(id: Int) async -> CarrierResponse? {
         let card = carrierResponseArray[id]
         
@@ -104,54 +171,7 @@ actor CarriersScheduleModel {
         return await taskCarriersCard?.value
     }
     
-    func getCarrierInfos(stationFrom: Station, stationTo: Station) async -> [CarrierInfo] {
-        let response = await fetchThread(stationFrom: stationFrom, stationTo: stationTo)
-
-        var carrierInfos: [CarrierInfo] = []
-
-        for segment in response?.segments ?? [] {
-            
-            guard let departure = segment.departure, let arrival = segment.arrival else { continue }
-            
-            if let hasTransfers = segment.has_transfers, hasTransfers {
-                guard let transfers = segment.transfers, let segmentExtra = segment.details?.first else { continue }
-                
-                var transitionsString: String = ""
-                        
-                transfers.enumerated().forEach { index, transition in
-                    if let title = transition.title {
-                        let titlePrep = CityPrepositionalHelper.toPrepositional(title)
-                        if index == 0 {
-                            transitionsString += "\(titlePrep)"
-                        } else if index == transfers.count - 1 {
-                            transitionsString += "и \(titlePrep)"
-                        } else {
-                            transitionsString += ", \(titlePrep)"
-                        }
-                    }
-                }
-                let firstTwo = transitionsString.lowercased().prefix(2)
-                
-                let voSet: Set<String> = ["вл", "вк", "вс", "вт", "вф", "вр"]
-                
-                let prefix = voSet.contains(String(firstTwo)) ? "во" : "в"
-
-                let additionalInfo: String? = transitionsString.isEmpty ? nil : "С пересадкой \(prefix) \(transitionsString)"
-                
-                guard let card = await createCarrierInfo(departure: departure, arrival: arrival, segment: segmentExtra, additionalInfo: additionalInfo, hasTransfers: hasTransfers) else { continue }
-                carrierInfos.append(card)
-                
-                continue
-            }
-            
-            guard let card = await createCarrierInfo(departure: departure, arrival: arrival, segment: segment) else { continue }
-            carrierInfos.append(card)
-        }
-        print(carrierInfos)
-        return carrierInfos
-    }
-    
-    func createCarrierInfo(departure: Date, arrival: Date, segment: Segment, additionalInfo: String? = nil, hasTransfers: Bool = false) async -> CarrierInfo? {
+    private func createCarrierInfo(departure: Date, arrival: Date, segment: Segment, additionalInfo: String? = nil, hasTransfers: Bool = false) async -> CarrierInfo? {
         guard let thread = segment.thread, var carrier = thread.carrier else { return nil }
 
         let dateStart = customDateFormatter.string(from: departure)
@@ -202,4 +222,12 @@ actor CarriersScheduleModel {
         
         return CarrierInfo(name: carrierName ?? "Неизвестный", imageData: imageData, date: dateStart, timeStart: timeStart, timeEnd: timeEnd, hoursTotal: timeTotal, importantInfo: additionalInfo ?? "", carrierCard: carrierCard)
     }
+}
+
+protocol CarriersScheduleModelProtocol: Actor {    
+    typealias Station = Components.Schemas.Station
+    typealias Segments = Components.Schemas.Segments
+    
+    func fetchThread(stationFrom: Station, stationTo: Station) async -> Segments?
+    func getCarrierInfos(stationFrom: Station, stationTo: Station) async -> [CarrierInfo]
 }

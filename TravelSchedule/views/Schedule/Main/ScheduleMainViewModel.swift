@@ -60,10 +60,15 @@ import SwiftUI
     }
 }
 
+enum SelectionType: Sendable {
+    case from
+    case to
+}
+
 @MainActor
 @Observable final class ScheduleMainViewModel: ScheduleMainViewModelProtocol {
     
-    private let model = SettlementsModel.shared
+    private let model: SettlementsModelProtocol = SettlementsModel.shared
     
     var selectedFrom: SettlementAndStation = SettlementAndStation()
     var selectedTo: SettlementAndStation = SettlementAndStation()

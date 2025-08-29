@@ -11,9 +11,15 @@ struct ScheduleSettingsView: View {
     
     @Environment(ErrorHandlerModel.self) var errorHandler: ErrorHandlerModel?
     
-    @Binding var isDarkTheme: Bool
+    @State private var viewModel: ScheduleSettingsViewModelProtocol
     
-    @State var isUserAgreementPresented: Bool = false
+    init(isDarkTheme: Binding<Bool>) {
+        self.viewModel = ScheduleSettingsViewModel(isDarkTheme: isDarkTheme)
+    }
+    
+    init(viewModel: ScheduleSettingsViewModelProtocol) {
+        self.viewModel = viewModel
+    }
     
     private var fontMain: Font {
         return FontStyleHelper.regular.getStyledFont(size: 17)
@@ -35,7 +41,7 @@ struct ScheduleSettingsView: View {
                 Color.ypWhite
                     .ignoresSafeArea()
                 VStack(spacing: 0) {
-                    Toggle(isOn: $isDarkTheme) {
+                    Toggle(isOn: viewModel.isDarkTheme) {
                         Text("Темная тема")
                             .font(fontMain)
                     }
@@ -43,7 +49,7 @@ struct ScheduleSettingsView: View {
                     .frame(height: 60)
                     
                     Button {
-                        isUserAgreementPresented = true
+                        viewModel.isUserAgreementPresented = true
                     } label: {
                         agreementButtonsLabel
                     }
@@ -56,7 +62,7 @@ struct ScheduleSettingsView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 24)
             }
-            .navigationDestination(isPresented: $isUserAgreementPresented) {
+            .navigationDestination(isPresented: $viewModel.isUserAgreementPresented) {
                 UserAgreementView()
             }
         }

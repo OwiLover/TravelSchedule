@@ -10,11 +10,13 @@ import SwiftUI
 struct CarriersFilterSelectView: View {
     
     @Environment(ErrorHandlerModel.self) var errorHandler: ErrorHandlerModel?
-    
-    @Bindable var model: CarriersFilterSelectModel
-    
     @Environment(\.dismiss) private var dismiss
     
+    @State var viewModel: CarrierFilterSelectViewModelProtocol
+    
+    init(carrierFilters: CarrierFilters, viewModel: CarrierFilterSelectViewModelProtocol? = nil) {
+        self.viewModel = viewModel ?? CarriersFilterSelectViewModel(carrierFilters: carrierFilters)
+    }
     private let sectionFont = FontStyleHelper.bold.getStyledFont(size: 24)
     
     private let optionsFont = FontStyleHelper.regular.getStyledFont(size: 17)
@@ -28,8 +30,8 @@ struct CarriersFilterSelectView: View {
         ZStack(alignment: .bottom) {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 16) {
-                    makeSectionList(info: model.getTimeFiltersInfo())
-                    makeSectionList(info: model.getTransitionFilterInfo())
+                    makeSectionList(info: viewModel.getTimeFiltersInfo())
+                    makeSectionList(info: viewModel.getTransitionFilterInfo())
                 }
             }
             Button {
@@ -82,11 +84,11 @@ struct CarriersFilterSelectView: View {
         Button {
             print("I was tapped!")
             print(filter)
-            model.toggleFilter(filterName: filter)
-            print(model.isFilteringActive)
+            viewModel.toggleTimeFilter(filterName: filter)
+            print(viewModel.isFilteringActive)
         } label: {
             ZStack {
-                if !model.isFilterSelected(filter) {
+                if !viewModel.isTimeFilterSelected(filter) {
                     RoundedRectangle(cornerRadius: 4)
                         .stroke(lineWidth: 2)
                         .fill(.ypBlack)
@@ -109,10 +111,10 @@ struct CarriersFilterSelectView: View {
     
     private func makeFilterButtonOne(filter: String) -> some View {
         Button {
-            model.changeTransitionFilter(filterName: filter)
+            viewModel.changeTransitionFilter(filterName: filter)
         } label: {
             ZStack {
-                if model.isTransitionButtonActive(filterName: filter) {
+                if viewModel.isTransitionButtonActive(filterName: filter) {
                     Circle()
                         .stroke(lineWidth: 2)
                         .fill(.ypBlack)
@@ -134,5 +136,5 @@ struct CarriersFilterSelectView: View {
 }
 
 #Preview {
-    CarriersFilterSelectView(model: CarriersFilterSelectModel())
+//    CarriersFilterSelectView(viewModel: CarriersFilterSelectViewModel())
 }

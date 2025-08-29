@@ -10,16 +10,11 @@ import SwiftUI
 struct ScheduleMainView: View {
     @Environment(ErrorHandlerModel.self) var errorHandlerModel: ErrorHandlerModel?
     
-    @State var fromModel = ScheduleSettlementPickerModel()
-    @State var toModel = ScheduleSettlementPickerModel()
-    @State var storiesModel = ScheduleStoriesModel()
+    @State private var viewModel: ScheduleMainViewModelProtocol
     
-    @State var isPresentedFromView: Bool = false
-    @State var isPresentedToView: Bool = false
-    @State var isPresentedCarrierView: Bool = false
-    @State var isStoryPresented: Bool = false
-    
-    @State var selectedStory: Story? = nil
+    init(viewModel: ScheduleMainViewModelProtocol = ScheduleMainViewModel()) {
+        self.viewModel = viewModel
+    }
     
     private var storiesPreviewFont: Font {
         FontStyleHelper.regular.getStyledFont(size: 12)
@@ -36,11 +31,10 @@ struct ScheduleMainView: View {
             Group {
                 VStack(spacing: 0) {
                     storiesView
-//                        .frame(height: 188)
-                    ScheduleMainPicker(modelFrom: fromModel, modelTo: toModel, actionFrom: actionFrom, actionTo: actionTo)
+                    ScheduleMainPicker
                         .padding(.top, 20)
                     Button {
-                        isPresentedCarrierView = true
+                        viewModel.presentCarrierView()
                     }
                     label: {
                         ZStack {
@@ -52,26 +46,26 @@ struct ScheduleMainView: View {
                         }
                         .frame(width: 150, height: 60)
                     }
-                    .opacity(checkModelsSelection() ? 1 : 0)
-                    .disabled(checkModelsSelection() ? false : true)
+                    .opacity(viewModel.checkSelection() ? 1 : 0)
+                    .disabled(!viewModel.checkSelection())
                     .padding(.top, 16)
                     Spacer()
                 }
             }
-            .navigationDestination(isPresented: $isPresentedFromView) {
-                ScheduleSettlementSelectView(model: fromModel, isSelfPresented: $isPresentedFromView)
+            .navigationDestination(isPresented: $viewModel.isPresentedFromView) {
+                ScheduleSettlementSelectView(isSelfPresented: $viewModel.isPresentedFromView, type: .from, settlementAndStation: $viewModel.selectedFrom)
             }
             
-            .navigationDestination(isPresented: $isPresentedToView) {
-                ScheduleSettlementSelectView(model: toModel, isSelfPresented: $isPresentedToView)
+            .navigationDestination(isPresented: $viewModel.isPresentedToView) {
+                ScheduleSettlementSelectView(isSelfPresented: $viewModel.isPresentedToView, type: .to, settlementAndStation: $viewModel.selectedTo)
             }
-            .navigationDestination(isPresented: $isPresentedCarrierView) {
-                CarrierSelectView(fromModel: fromModel, toModel: toModel)
+            .navigationDestination(isPresented: $viewModel.isPresentedCarrierView) {
+                CarrierSelectView(settlementFrom: viewModel.selectedFrom, settlementTo: viewModel.selectedTo)
             }
             .background(Color.ypWhite)
             
-            .fullScreenCover(isPresented: $isStoryPresented) {
-                ScheduleMainStoryView(story: $selectedStory)
+            .fullScreenCover(isPresented: $viewModel.isStoryPresented) {
+                ScheduleMainStoryView(selectedStory: viewModel.selectedStory)
             }
         }
     }
@@ -79,18 +73,49 @@ struct ScheduleMainView: View {
     var storiesView: some View {
         ScrollView(.horizontal) {
             HStack(spacing: 12) {
-                ForEach(storiesModel.stories) { story in
+                ForEach(viewModel.storiesModel.stories) { story in
                     makeStoryView(story: story)
                         .onTapGesture {
-                            story.isWatched = true
-                            selectedStory = story
-                            isStoryPresented = true
+                            viewModel.selectStory(story)
                         }
                 }
             }
             .padding(.vertical, 24)
             .padding(.horizontal, 16)
         }
+    }
+    
+    var ScheduleMainPicker: some View {
+            ZStack {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.ypBlueConstant)
+                
+                HStack(spacing: 16) {
+                    VStack(spacing: 0) {
+                        ScheduleMainPickerTextFieldButton(previewText: "Откуда", action: actionFrom, selectedText: $viewModel.selectionFromText)
+                        ScheduleMainPickerTextFieldButton(previewText: "Куда", action: actionTo, selectedText: $viewModel.selectionToText)
+                    }
+                    .background(Color.ypWhiteConstant)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    
+                    Button {
+                        viewModel.swapSettlements()
+                    } label: {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 40)
+                                .fill(Color.ypWhiteConstant)
+                                .frame(width: 36, height: 36)
+                            Image("ChangeIcon")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 24, height: 24)
+                        }
+                    }
+                }
+                .padding(.all, 16)
+            }
+            .frame(height: 128)
+            .padding(.horizontal, 16)
     }
     
     func makeStoryView(story: Story) -> some View {
@@ -118,56 +143,11 @@ struct ScheduleMainView: View {
     }
     
     func actionFrom() {
-        isPresentedFromView = true
+        viewModel.isPresentedFromView = true
     }
     
     func actionTo() {
-        isPresentedToView = true
-    }
-    
-    func checkModelsSelection() -> Bool {
-        toModel.checkIfAllSelected() && fromModel.checkIfAllSelected()
-    }
-}
-
-struct ScheduleMainPicker: View {
-    @Bindable var modelFrom: ScheduleSettlementPickerModel
-    @Bindable var modelTo: ScheduleSettlementPickerModel
-    
-    var actionFrom: () -> Void
-    var actionTo: () -> Void
-    
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.ypBlueConstant)
-            
-            HStack(spacing: 16) {
-                VStack(spacing: 0) {
-                    ScheduleMainPickerTextFieldButton(previewText: "Откуда", action: actionFrom, selectedText: $modelFrom.selectionText)
-                    ScheduleMainPickerTextFieldButton(previewText: "Куда", action: actionTo, selectedText: $modelTo.selectionText)
-                }
-                .background(Color.ypWhiteConstant)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                
-                Button {
-                    modelTo.swapSettlements(with: modelFrom)
-                } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 40)
-                            .fill(Color.ypWhiteConstant)
-                            .frame(width: 36, height: 36)
-                        Image("ChangeIcon")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 24, height: 24)
-                    }
-                }
-            }
-            .padding(.all, 16)
-        }
-        .frame(height: 128)
-        .padding(.horizontal, 16)
+        viewModel.isPresentedToView = true
     }
 }
 

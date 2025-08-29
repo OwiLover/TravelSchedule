@@ -9,12 +9,11 @@ import SwiftUI
 
 struct ScheduleRootView: View {
     
-    private enum SelectedTab: String {
-        case Schedule
-        case Settings
-    }
+    @State private var viewModel: ScheduleRootViewModelProtocol
     
-    init() {
+    init(viewModel: ScheduleRootViewModelProtocol = ScheduleRootViewModel()) {
+        self.viewModel = viewModel
+        
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithOpaqueBackground()
         tabBarAppearance.backgroundColor = .ypWhite
@@ -22,33 +21,24 @@ struct ScheduleRootView: View {
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
     }
-//    @State private var errorHandler: ErrorHandlerModel = ErrorHandlerModel(error: .Internet)
-    @State private var errorHandler: ErrorHandlerModel = ErrorHandlerModel()
-    
-    @State private var selectedTab: SelectedTab = .Schedule
-    
-    @State private var pathHelper = CustomPathHelper()
-    
-    @State private var isDarkTheme: Bool = false
     
     var body: some View {
         NavigationStack {
-            TabView(selection: $selectedTab) {
+            TabView(selection: $viewModel.selectedTab) {
                 ScheduleMainView()
                     .tabItem {
-                        Image(selectedTab == .Schedule ? "ScheduleTabBarIcon" : "ScheduleUnselectedTabBarIcon")
+                        Image(viewModel.selectedTab == .Schedule ? "ScheduleTabBarIcon" : "ScheduleUnselectedTabBarIcon")
                     }
                     .tag(SelectedTab.Schedule)
                 
-                ScheduleSettingsView(isDarkTheme: $isDarkTheme)
+                ScheduleSettingsView(isDarkTheme: $viewModel.isDarkTheme)
                     .tabItem {
-                        Image(selectedTab == .Settings ? "SettingsTabBarIcon" : "SettingsUnselectedTabBarIcon")
+                        Image(viewModel.selectedTab == .Settings ? "SettingsTabBarIcon" : "SettingsUnselectedTabBarIcon")
                     }
                     .tag(SelectedTab.Settings)
             }
-            .environment(pathHelper)
         }
-        .environment(errorHandler)
-        .preferredColorScheme(isDarkTheme ? .dark : .light)
+        .environment(viewModel.errorHandler)
+        .preferredColorScheme(viewModel.isDarkTheme ? .dark : .light)
     }
 }

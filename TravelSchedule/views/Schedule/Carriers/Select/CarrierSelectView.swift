@@ -13,100 +13,105 @@ struct CarrierSelectView: View {
     @Environment(ErrorHandlerModel.self) var errorHandler: ErrorHandlerModel?
     @Environment(\.dismiss) private var dismiss
     
-    @Bindable var fromModel: ScheduleSettlementPickerModel
-    @Bindable var toModel: ScheduleSettlementPickerModel
+    @State private var viewModel: CarrierSelectViewModelProtocol
     
-    @State private var selectModel: CarriersFilterSelectModel = CarriersFilterSelectModel()
-    @State private var isCarriersFilterSelectViewPresented: Bool = false
-    @State private var isCarriersCardViewPresented: Bool = false
-    
-    @State private var selectedCarrier: CarriersCard?
-    
-    var elements: [String] = ["z", "x", "c", "q", "w", "d", "h", "a"]
-    
-//    MARK: Для тестирования надписи отсутствия вариантов
-//    var elements: [String] = []
+    init(viewModel: CarrierSelectViewModelProtocol? = nil, settlementFrom: SettlementAndStation, settlementTo: SettlementAndStation) {
+        self.viewModel = viewModel ?? CarrierSelectViewModel(settlementFrom: settlementFrom, settlementTo: settlementTo)
+    }
     
     private let filterButtonHeight: CGFloat = 60
     private let filterButtonBottomPadding: CGFloat = 24
     private let filterStackSpacing: CGFloat = 16
+    private let fontForLoading: Font = FontStyleHelper.regular.getStyledFont(size: 17)
     
     var body: some View {
         ErrorsHandlerView {
-            mainView
+                mainView
         }
+        .background(.ypWhite)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 CustomBackButton(action: { dismiss() })
             }
         }
-        .navigationDestination(isPresented: $isCarriersFilterSelectViewPresented) {
-            CarriersFilterSelectView(model: selectModel)
+        .navigationDestination(isPresented: $viewModel.isCarriersFilterSelectViewPresented) {
+            CarriersFilterSelectView(carrierFilters: viewModel.carrierFilters)
         }
-        .navigationDestination(isPresented: $isCarriersCardViewPresented) {
-            CarriersCardView(cardInfo: selectedCarrier)
+        .navigationDestination(isPresented: $viewModel.isCarriersCardViewPresented) {
+            CarriersCardView(cardInfo: viewModel.getSelectedCarrier())
+        }
+        .task {
+            Task {
+                await viewModel.loadData()
+            }
         }
     }
     
     private var mainView: some View {
         VStack(spacing: filterStackSpacing) {
             HStack(spacing: 0) {
-                Text("\(fromModel.selectionText) → \(toModel.selectionText)")
+                Text(viewModel.getCarriersRouteString())
                     .font(FontStyleHelper.bold.getStyledFont(size: 24))
                 Spacer()
             }
-            ZStack(alignment: .bottom) {
-                if elements.isEmpty {
-                    VStack {
-                        Spacer()
-                        Text("Вариантов нет")
-                            .foregroundStyle(.ypBlack)
-                            .font(FontStyleHelper.bold.getStyledFont(size: 24))
-                        Spacer()
+            ZStack {
+                ZStack(alignment: .bottom) {
+                    if viewModel.filteredElements.isEmpty {
+                        VStack {
+                            Spacer()
+                            Text("Вариантов нет")
+                                .foregroundStyle(.ypBlack)
+                                .font(FontStyleHelper.bold.getStyledFont(size: 24))
+                            Spacer()
+                        }
+                        .padding(.bottom, filterButtonHeight + filterButtonBottomPadding + filterStackSpacing)
+                    } else {
+                        CarrierList
+                            .mask(LinearGradient(gradient: Gradient(colors: [.ypWhite, .ypWhite, .ypWhite, .ypWhite, .ypWhite, .ypWhite, .clear]), startPoint: .center, endPoint: .bottom))
                     }
-                    .padding(.bottom, filterButtonHeight + filterButtonBottomPadding + filterStackSpacing)
-                } else {
-                    CarrierList
-                        .mask(LinearGradient(gradient: Gradient(colors: [.ypWhite, .ypWhite, .ypWhite, .ypWhite, .ypWhite, .ypWhite, .clear]), startPoint: .center, endPoint: .bottom))
-                }
-                Button(action: {
-                    isCarriersFilterSelectViewPresented = true
-                }) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.ypBlueConstant)
-                        HStack(spacing: 4) {
-                            Text("Уточнить время").font(FontStyleHelper.bold.getStyledFont(size: 17))
-                                .foregroundStyle(.ypWhiteConstant)
-                            if selectModel.isFilteringActive {
-                                Rectangle()
-                                    .foregroundStyle(.ypRedConstant)
-                                    .frame(width: 8, height: 8)
-                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                    Button(action: {
+                        viewModel.presentCarriersFilterSelectView()
+                    }) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.ypBlueConstant)
+                            HStack(spacing: 4) {
+                                Text("Уточнить время")
+                                    .font(FontStyleHelper.bold.getStyledFont(size: 17))
+                                    .foregroundStyle(.ypWhiteConstant)
+                                if viewModel.isFilteringActive {
+                                    Rectangle()
+                                        .foregroundStyle(.ypRedConstant)
+                                        .frame(width: 8, height: 8)
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                }
                             }
                         }
                     }
+                    .frame(height: filterButtonHeight)
+                    .padding(.bottom, filterButtonBottomPadding)
                 }
-                .frame(height: filterButtonHeight)
-                .padding(.bottom, filterButtonBottomPadding)
+                .disabled(viewModel.isLoading)
+                .opacity(viewModel.isLoading ? 0 : 1)
+            VStack {
+                Text("Перевозчики загружаются, подождите...")
+                    .font(fontForLoading)
+                    .foregroundStyle(.ypBlack)
+                ProgressView()
+            }
+            .opacity(viewModel.isLoading ? 1 : 0)
             }
         }
         .padding(EdgeInsets(top: 16, leading: 16, bottom: 0, trailing: 16))
-        .background(.ypWhite)
     }
-    
+
     private var CarrierList: some View {
         ScrollView {
             LazyVStack(spacing: 8) {
-                ForEach(elements, id: \.self) {
+                ForEach(viewModel.filteredElements) {
                     element in
-                    if ["x", "a", "h"].firstIndex(of: element) == nil {
-                        CustomCarrierCell(name: "РЖД", image: "RZDIcon", date: "11 января", timeStart: "19:00", timeEnd: "21:00", timeTotal: "2 часа", action: carrierCellAction)
-                    }
-                    else {
-                        CustomCarrierCell(name: "ФПК", image: "FGKIcon", date: "21 Августа", timeStart: "01:00", timeEnd: "13:00", timeTotal: "12 часов", importantInfo: "Пересадка в Костроме", action: carrierCellAction)
-                    }
+                    CustomCarrierCell(carrierInfo: element, action: carrierCellAction)
                 }
             }
             Spacer(minLength: filterButtonHeight + 32)
@@ -114,12 +119,12 @@ struct CarrierSelectView: View {
         .scrollIndicators(.hidden)
     }
     
-    func carrierCellAction() {
-        isCarriersCardViewPresented = true
-        selectedCarrier = CarriersCard(image: "RZDBigIcon", name: "ОАО «РЖД»", email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
+    func carrierCellAction(carrierCard: CarriersCard) {
+
+        viewModel.selectCarrier(carrierCard)
     }
 }
 
 #Preview {
-    CarrierSelectView(fromModel: ScheduleSettlementPickerModel(), toModel: ScheduleSettlementPickerModel())
+//    CarrierSelectView(fromModel: ScheduleSettlementPickerModel(), toModel: ScheduleSettlementPickerModel())
 }

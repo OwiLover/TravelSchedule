@@ -16,7 +16,6 @@ struct ServerErrorView: View {
                 .ignoresSafeArea(edges: .all)
             VStack(spacing: 16) {
                 Image("ServerErrorImage")
-                //                .resizable()
                 Text("Ошибка сервера")
                     .font(errorTextFont)
             }

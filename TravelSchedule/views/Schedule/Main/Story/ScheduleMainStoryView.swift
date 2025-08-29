@@ -6,24 +6,19 @@
 //
 
 import SwiftUI
-import Combine
 
 struct ScheduleMainStoryView: View {
     @Environment(\.dismiss) var dismiss
     
-    @Binding var story: Story?
+    @State private var viewModel: ScheduleMainStoryViewModel
     
-    private var currentStory: Image {
-        guard let story else {
-            return Image(systemName: "video.slash")
-        }
-        return story.storyImages[currentIndex]
+    init(viewModel: ScheduleMainStoryViewModel? = nil, selectedStory: Story?) {
+        self.viewModel = viewModel ?? ScheduleMainStoryViewModel(story: selectedStory)
     }
     
-    @State private var currentProgress: Double = 0.0
-    @State private var currentIndex = 0
-    @State private var timer: Timer.TimerPublisher = Timer.publish(every: 5/100, on: .main, in: .default)
-    @State private var cancelable: Cancellable?
+    private var currentStory: Image {
+        viewModel.storyImage
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -42,20 +37,18 @@ struct ScheduleMainStoryView: View {
             }
             .onTapGesture { tap in
                 if tap.x < geometry.size.width / 2 {
-                   prevStory()
+                    viewModel.prevStory()
                 } else {
-                    nextStory()
+                    viewModel.nextStory()
                 }
             }
         }
         .onAppear {
-            resetTimer()
+            viewModel.dismissAction = dismissAction
+            viewModel.resetTimer()
         }
         .onDisappear {
-            cancelable?.cancel()
-        }
-        .onReceive(timer) { _ in
-            increaseProgress()
+            viewModel.cancelTimer()
         }
     }
     
@@ -63,7 +56,7 @@ struct ScheduleMainStoryView: View {
         ZStack {
             VStack {
                 HStack {
-                    ProgressBar(sectionsCount: story?.storyImages.count ?? 0, currentSection: currentIndex, progress: currentProgress)
+                    ProgressBar(sectionsCount: viewModel.getStoriesCount(), currentSection: viewModel.currentIndex, progress: viewModel.currentProgress)
                 }
                 .padding(.top, 28)
                 .padding(.horizontal, 12)
@@ -74,7 +67,7 @@ struct ScheduleMainStoryView: View {
                     .padding(.horizontal, 12)
                 Spacer()
                 HStack(spacing: 0) {
-                    StoryView(title: story?.title ?? "", text: story?.text ?? "")
+                    StoryView(title: viewModel.getStoryTitle(), text: viewModel.getStoryText())
                     Spacer(minLength: 0)
                 }
                 .padding(.horizontal, 16)
@@ -97,35 +90,8 @@ struct ScheduleMainStoryView: View {
         }
     }
     
-    func nextStory() {
-        if currentIndex < (story?.storyImages.count ?? 0) - 1 {
-            currentIndex += 1
-            resetTimer()
-        } else {
-            dismiss()
-        }
-    }
-    
-    func prevStory() {
-        if currentIndex > 0 {
-            currentIndex -= 1
-        }
-        resetTimer()
-    }
-    
-    func resetTimer() {
-        cancelable?.cancel()
-        timer = Timer.publish(every: 5/100, on: .main, in: .default)
-        cancelable = timer.connect()
-        currentProgress = 0.0
-    }
-    
-    func increaseProgress() {
-        currentProgress += 0.01
-        if currentProgress >= 1 {
-            nextStory()
-            currentProgress = 0
-        }
+    func dismissAction() {
+        dismiss()
     }
 }
 
@@ -150,5 +116,5 @@ struct StoryView: View {
 
 #Preview {
     @Previewable @State var story = ScheduleStoriesModel().stories.first
-    ScheduleMainStoryView(story: $story)
+//    ScheduleMainStoryView(story: $story)
 }

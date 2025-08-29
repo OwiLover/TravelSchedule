@@ -7,75 +7,38 @@
 
 import SwiftUI
 
-struct City {
-    let name: String
-    let stations: [String]
+enum SelectionType {
+    case from
+    case to
 }
 
-
-@Observable final class ScheduleSettlementPickerModel {
+@Observable final class ScheduleSettlementPickerModel: ScheduleSettlementSelectModelProtocol, ScheduleStationSelectModelProtocol, Sendable {
+    
+//    MARK: Поскольку модель требуется в трёх view, чтобы не передавать одну model через все экраны, было принято решение создать синглтон
+    
+    static let shared = ScheduleSettlementPickerModel()
+    private init() {}
+    
     typealias Settlement = Components.Schemas.Settlement
     typealias Station = Components.Schemas.Station
+    
+    private let model: SettlementsModel = SettlementsModel.shared
     
 //    MARK: временное решение, пока нет необходимости связывать View с API
     
     private var settlements: [Settlement] = [Settlement(title: "Москва", stations: [.init(title: "Белорусский вокзал"), .init(title: "Казанский вокзал"), .init(title: "Киевский вокзал")]), Settlement(title: "Санкт-Петербург", stations: [.init(title: "Финляндский вокзал"), .init(title: "Московский вокзал")]), Settlement(title: "Прага")]
     
-    private var selectedSettlement: Settlement?
-    private var selectedStation: Station?
+    private var selectedFrom: SettlementAndStation?
+    private var selectedTo: SettlementAndStation?
     
-    
-    var selectionText: String {
-        get {
-            guard let cityName = selectedSettlement?.title, let stationName = selectedStation?.title else {
-                return ""
-            }
-            return "\(cityName) (\(stationName))"
-        }
-        set {
-            return
-        }
+    private func getSettlement(withName title: String) -> Settlement? {
+        return settlements.first(where: {$0.title == title})
     }
     
-//    private var elements: [City] = [City(name: "Москва", stations: ["Белорусский вокзал", "Казанский вокзал", "Киевский вокзал", "Ленинградский вокзал", "Ярославский вокзал", "Курский вокзал", "Павелецкий вокзал", "Рижский вокзал", "Савеловский вокзал", "Восточный вокзал"]),
-//                                    City(name: "Санкт-Петербург", stations: []),
-//                                    City(name: "Нью-Йорк", stations: []),
-//                                    City(name: "Лондон", stations: []),
-//                                    City(name: "Париж", stations: [])]
-    
-    private func selectSettlement(withName title: String) {
-        self.selectedSettlement = settlements.first(where: {$0.title == title})
-        self.selectedStation = nil
+    private func getStation(from settlement: Settlement, withName title: String) -> Station? {
+        return settlement.stations?.first(where: {$0.title == title})
     }
-    
-    private func selectStation(withName title: String) {
-        guard let selectedSettlement else {
-            self.selectedStation = nil
-            return
-        }
-        self.selectedStation = selectedSettlement.stations?.first(where: {$0.title == title})
-    }
-    
-    func swapSettlements( with model: ScheduleSettlementPickerModel) {
-        let selectedSettlement = self.selectedSettlement
-        let selectedStation = self.selectedStation
-        
-        self.selectedSettlement = model.selectedSettlement
-        self.selectedStation = model.selectedStation
-        
-        model.selectedSettlement = selectedSettlement
-        model.selectedStation = selectedStation
-    }
-    
-    func checkIfAllSelected() -> Bool {
-        selectedSettlement != nil && selectedStation != nil
-    }
-    
-    func printElements() {
-        print("Selected settlement: \(selectedSettlement?.title ?? "None")")
-        print("Selected station: \(selectedStation?.title ?? "None")")
-    }
-    
+
     func getCitiesString() -> [String] {
         settlements.compactMap {
             $0.title
@@ -91,8 +54,35 @@ struct City {
         } ?? []
     }
     
-    func makeSelection(settlement: String, station: String) {
-        selectSettlement(withName: settlement)
-        selectStation(withName: station)
+    func makeSelection(settlement settlementName: String, station: String, type: SelectionType) {
+        guard let settlement = getSettlement(withName: settlementName),
+              let station = getStation(from: settlement, withName: station) else {
+            return
+        }
+        
+        switch type {
+        case .from:
+            selectedFrom = .init(selectedSettlement: settlement, selectedStation: station)
+        case .to:
+            selectedTo = .init(selectedSettlement: settlement, selectedStation: station)
+        }
     }
+    
+    func getSelectionString(type: SelectionType) -> String {
+        switch type {
+        case .from:
+            selectedFrom?.selectionText ?? ""
+        case .to:
+            selectedTo?.selectionText ?? ""
+        }
+    }
+}
+
+protocol ScheduleSettlementSelectModelProtocol {
+    func getCitiesString() -> [String]
+}
+
+protocol ScheduleStationSelectModelProtocol {
+    func getStationsString(for city: String) -> [String]
+    func makeSelection(settlement: String, station: String, type: SelectionType)
 }

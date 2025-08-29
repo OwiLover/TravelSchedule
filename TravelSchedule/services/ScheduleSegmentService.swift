@@ -29,7 +29,10 @@ final class ScheduleSegmentService: ScheduleSegmentServiceProtocol {
         let result = try await self.client.getScheduleSegments(query: .init(apikey: apiKey,
                                                                             from: from,
                                                                             to: to,
-                                                                            date: date.ISO8601Format()))
+                                                                            date: date.ISO8601Format(),
+                                                                            transport_types: "train",
+                                                                            transfers: true
+                                                                           ))
         return try result.ok.body.json
     }
 }

@@ -13,8 +13,8 @@ import SwiftUI
     var stories: [Story] = [
         Story(previewImage: .init(.storyPreview1), storyImages: [.init(.storyFirstBig1), .init(.storySecondBig1)]),
         Story(previewImage: .init(.storyPreview2), storyImages: [.init(.storyFirstBig2), .init(.storySecondBig2)]),
-        Story(previewImage: .init(.storyPreview3), storyImages: [.init(.storyFirstBig3), .init(.storySecondBig3)], isWatched: true),
-        Story(previewImage: .init(.storyPreview4), storyImages: [.init(.storyFirstBig4), .init(.storySecondBig4)], isWatched: true),
+        Story(previewImage: .init(.storyPreview3), storyImages: [.init(.storyFirstBig3), .init(.storySecondBig3)]),
+        Story(previewImage: .init(.storyPreview4), storyImages: [.init(.storyFirstBig4), .init(.storySecondBig4)]),
         Story(previewImage: .init(.storyPreview5), storyImages: [.init(.storyFirstBig5), .init(.storySecondBig5)]),
         Story(previewImage: .init(.storyPreview6), storyImages: [.init(.storyFirstBig6), .init(.storySecondBig6)]),
         Story(previewImage: .init(.storyPreview7), storyImages: [.init(.storyFirstBig7), .init(.storySecondBig7)]),
